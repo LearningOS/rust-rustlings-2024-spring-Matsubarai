@@ -3,11 +3,34 @@
 	This problem requires you to implement a sorting algorithm
 	you can use bubble sorting, insertion sorting, heap sorting, etc.
 */
-// I AM NOT DONE
 
-fn sort<T>(array: &mut [T]){
-	//TODO
+// Okay, it's a quicksort...
+fn partition<T: PartialOrd>(arr: &mut [T]) -> usize {
+    let len = arr.len();
+    let pivot_index = len / 2;
+    arr.swap(pivot_index, len - 1);
+    let mut i = 0;
+    for j in 0..len - 1 {
+        if arr[j] <= arr[len - 1] {
+            arr.swap(i, j);
+            i += 1;
+        }
+    }
+    arr.swap(i, len - 1);
+    i
 }
+
+fn sort<T: PartialOrd>(array: &mut [T]){
+	//TODO
+    let len = array.len();
+    if len < 2 {
+        return;
+    }
+    let pivot_index = partition(array);
+    sort(&mut array[0..pivot_index]);
+    sort(&mut array[pivot_index + 1..len]);
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
