@@ -2,11 +2,10 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
-use std::fmt::{self, Display, Formatter};
+use std::fmt::{self, Display, Formatter, Pointer};
 use std::ptr::NonNull;
-use std::vec::*;
+use std::{clone, vec::*};
 
 #[derive(Debug)]
 struct Node<T> {
@@ -14,7 +13,7 @@ struct Node<T> {
     next: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Node<T> {
+impl<T: PartialOrd> Node<T> {
     fn new(t: T) -> Node<T> {
         Node {
             val: t,
@@ -29,13 +28,13 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T: PartialOrd> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T: PartialOrd> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -71,12 +70,86 @@ impl<T> LinkedList<T> {
     }
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+		// TODO
+
+        // oops... it's list concat
+        // match list_a.end {
+        //     Some(mut x) => {
+        //         let mut list = Self {
+        //             length: list_a.length + list_b.length,
+        //             start: list_a.start,
+        //             end: list_a.end
+        //         };
+        //         match list_b.start {
+        //             Some(y) => {
+        //                 unsafe {
+        //                     let x_mut = x.as_mut();
+        //                     x_mut.next = Some(y);
+        //                 }
+        //                 list.end = list_b.end;
+        //             },
+        //             None => ()
+        //         };
+        //         list
+        //     },
+        //     None => list_b
+        // }
+
+        let mut nodea = list_a.start;
+        let mut nodeb = list_b.start;
+        let mut list = Self::new();
+        match (nodea, nodeb) {
+            (Some(pa), Some(pb)) => {
+                list.length = list_a.length + list_b.length;
+                unsafe {
+                    let (a, b) = (pa.as_ref(), pb.as_ref());
+                    if a.val < b.val {
+                        list.start = nodea;
+                        list.end = nodea;
+                        nodea = a.next;
+                    } else {
+                        list.start = nodeb;
+                        list.end = nodeb;
+                        nodeb = b.next;
+                    };
+                }
+                while let (Some(pa), Some(pb)) = (nodea, nodeb) {
+                    unsafe {
+                        let (a, b) = (pa.as_ref(), pb.as_ref());
+                        if a.val < b.val {
+                            list.end.unwrap().as_mut().next = nodea;
+                            list.end = nodea;
+                            nodea = a.next;
+                        } else {
+                            list.end.unwrap().as_mut().next = nodeb;
+                            list.end = nodeb;
+                            nodeb = b.next;
+                        };
+                    };
+                }
+                if let Some(pa) = nodea {
+                    unsafe {
+                        list.end.unwrap().as_mut().next = nodea;
+                        list.end = list_a.end;
+                    }
+                }
+                if let Some(pb) = nodeb {
+                    unsafe {
+                        list.end.unwrap().as_mut().next = nodeb;
+                        list.end = list_b.end;
+                    }
+                }
+                list
+            },
+            (Some(pa), None) => list_a,
+            _ => list_b
         }
+
+		// Self {
+        //     length: 0,
+        //     start: None,
+        //     end: None,
+        // }
 	}
 }
 
