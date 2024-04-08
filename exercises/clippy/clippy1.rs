@@ -12,7 +12,7 @@
 use std::f32;
 
 fn main() {
-    let pi = 3.14f32;
+    // let pi = 3.14f32;
     let pi = f32::consts::PI;
     let radius = 5.00f32;
 
